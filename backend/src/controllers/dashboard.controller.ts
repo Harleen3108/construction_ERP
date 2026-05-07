@@ -6,6 +6,9 @@ import Payment from '../models/Payment';
 import Approval from '../models/Approval';
 import MeasurementBook from '../models/MeasurementBook';
 import MaterialRequest from '../models/MaterialRequest';
+import User from '../models/User';
+import Tender from '../models/Tender';
+import AuditLog from '../models/AuditLog';
 import { AuthRequest } from '../middleware/auth';
 
 // Returns dashboard data based on user role
@@ -124,15 +127,15 @@ export const myDashboard = asyncHandler(async (req: AuthRequest, res: Response) 
       monthlyProjects, monthlyPayments, approvalsByStage, recentAudits, topContractors,
     ] = await Promise.all([
       Project.countDocuments(),
-      (await import('../models/User')).default.countDocuments(),
-      (await import('../models/Tender')).default.countDocuments(),
-      (await import('../models/User')).default.countDocuments({ role: 'CONTRACTOR' }),
+      User.countDocuments(),
+      Tender.countDocuments(),
+      User.countDocuments({ role: 'CONTRACTOR' }),
       Project.countDocuments({ status: 'IN_PROGRESS' }),
       Project.countDocuments({ status: 'COMPLETED' }),
       Project.countDocuments({ status: 'IN_PROGRESS', endDate: { $lt: new Date() } }),
       Approval.countDocuments({ status: 'PENDING' }),
-      (await import('../models/Bill')).default.countDocuments({ status: 'PAID' }),
-      (await import('../models/Payment')).default.aggregate([
+      Bill.countDocuments({ status: 'PAID' }),
+      Payment.aggregate([
         { $match: { status: 'RELEASED' } },
         { $group: { _id: null, total: { $sum: '$amount' }, count: { $sum: 1 } } },
       ]),
@@ -165,7 +168,7 @@ export const myDashboard = asyncHandler(async (req: AuthRequest, res: Response) 
         { $sort: { '_id.y': 1, '_id.m': 1 } },
       ]),
       // Monthly payments (last 6 months)
-      (await import('../models/Payment')).default.aggregate([
+      Payment.aggregate([
         { $match: { paymentDate: { $gte: new Date(Date.now() - 180 * 24 * 60 * 60 * 1000) }, status: 'RELEASED' } },
         {
           $group: {
@@ -182,7 +185,7 @@ export const myDashboard = asyncHandler(async (req: AuthRequest, res: Response) 
         { $group: { _id: '$stage', count: { $sum: 1 } } },
       ]),
       // Recent audit logs
-      (await import('../models/AuditLog')).default.find().sort({ timestamp: -1 }).limit(10).lean(),
+      AuditLog.find().sort({ timestamp: -1 }).limit(10).lean(),
       // Top contractors by awards
       Project.aggregate([
         { $match: { awardedTo: { $exists: true, $ne: null } } },
