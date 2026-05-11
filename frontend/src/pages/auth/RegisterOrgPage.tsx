@@ -65,15 +65,6 @@ export default function RegisterOrgPage() {
               You'll receive an email at <strong className="text-govt-navy">{form.adminEmail}</strong> once approved
               with instructions to set your password and access your dashboard.
             </p>
-            <div className="bg-amber-50 border-l-3 border-amber-400 px-4 py-3 text-left rounded mb-5">
-              <div className="text-xs font-semibold text-amber-800">What happens next?</div>
-              <ol className="text-xs text-amber-700 mt-1 list-decimal pl-4 space-y-0.5">
-                <li>Super Admin reviews your application</li>
-                <li>If approved, your workspace is auto-provisioned</li>
-                <li>You receive a "Set Password" email</li>
-                <li>You log in and onboard your team</li>
-              </ol>
-            </div>
             <Link to="/login" className="btn-gov w-full">Back to Login</Link>
           </div>
         </div>
