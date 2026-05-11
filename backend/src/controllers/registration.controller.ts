@@ -16,11 +16,15 @@ import {
 // PUBLIC — Anyone can submit a registration request
 export const applyRegistration = asyncHandler(async (req: Request, res: Response) => {
   const {
-    orgName, code, type, state, city, address, contactEmail, contactPhone,
+    orgName, type, state, city, address, contactEmail, contactPhone,
     headOfDepartment, website,
-    adminName, adminEmail, adminPhone, adminDesignation,
+    adminName, adminPhone, adminDesignation,
     requestedModules, expectedUsers, expectedProjects, preferredPlan, notes,
   } = req.body;
+
+  // Normalize email + code (most duplicate "errors" come from case mismatches)
+  const adminEmail = String(req.body.adminEmail || '').toLowerCase().trim();
+  const code = String(req.body.code || '').toUpperCase().trim();
 
   // Basic validation
   if (!orgName || !code || !contactEmail || !adminName || !adminEmail) {
@@ -28,22 +32,44 @@ export const applyRegistration = asyncHandler(async (req: Request, res: Response
     throw new Error('Required fields missing');
   }
 
-  // Check if a registration with this admin email or org code already exists
-  const dup = await OrganizationRegistration.findOne({
-    $or: [{ adminEmail }, { code: code.toUpperCase() }],
-    status: { $in: ['PENDING', 'APPROVED'] },
+  // ── Specific duplicate checks (separate messages so user knows what to fix) ──
+
+  // 1) Same admin email already used in a pending/approved registration?
+  const emailRegDup = await OrganizationRegistration.findOne({
+    adminEmail, status: { $in: ['PENDING', 'APPROVED'] },
   });
-  if (dup) {
+  if (emailRegDup) {
     res.status(400);
-    throw new Error('A registration with this email or department code already exists');
+    throw new Error(
+      `A registration with email "${adminEmail}" is already ${emailRegDup.status === 'PENDING' ? 'pending review' : 'approved'}. Please use a different admin email.`
+    );
   }
-  if (await Department.findOne({ code: code.toUpperCase() })) {
+
+  // 2) Same department code already used in a pending/approved registration?
+  const codeRegDup = await OrganizationRegistration.findOne({
+    code, status: { $in: ['PENDING', 'APPROVED'] },
+  });
+  if (codeRegDup) {
     res.status(400);
-    throw new Error('Department code is already taken');
+    throw new Error(
+      `Department code "${code}" is already taken by another registration. Please choose a different code (e.g., ${code}-2).`
+    );
   }
-  if (await User.findOne({ email: adminEmail.toLowerCase() })) {
+
+  // 3) Department already exists with this code (already onboarded)?
+  if (await Department.findOne({ code })) {
     res.status(400);
-    throw new Error('Admin email is already in use');
+    throw new Error(
+      `Department code "${code}" is already in use by an active department. Please choose a different code.`
+    );
+  }
+
+  // 4) Admin email already exists as a user in the system?
+  if (await User.findOne({ email: adminEmail })) {
+    res.status(400);
+    throw new Error(
+      `An account with email "${adminEmail}" already exists. Please use a different email or log in instead.`
+    );
   }
 
   const reg = await OrganizationRegistration.create({
