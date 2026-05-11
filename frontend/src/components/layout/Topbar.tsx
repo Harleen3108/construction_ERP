@@ -52,7 +52,7 @@ export default function Topbar({ onMenuClick }: { onMenuClick: () => void }) {
               <div className="hidden md:block text-left">
                 <div className="text-sm font-medium text-slate-800">{user.name}</div>
                 <div className="text-[10px] text-slate-500">
-                  {roleLabel(user.role)} · {user.department || 'PWD'}
+                  {roleLabel(user.role)} · {user.department?.name || user.department?.code || 'Platform'}
                 </div>
               </div>
             </button>

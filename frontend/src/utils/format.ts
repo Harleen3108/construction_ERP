@@ -41,15 +41,14 @@ export const humanStatus = (s: string) =>
 
 export const roleLabel = (role: string): string => {
   const map: Record<string, string> = {
-    JE: 'Junior Engineer',
-    SDO: 'Sub-Divisional Officer',
-    EE: 'Executive Engineer',
+    SUPER_ADMIN: 'Super Admin',
+    DEPT_ADMIN: 'Department Admin',
     CE: 'Chief Engineer',
-    TENDER_OFFICER: 'Tender Officer',
+    EE: 'Executive Engineer',
+    SDO: 'SDO / Assistant Engineer',
+    JE: 'Junior Engineer',
     CONTRACTOR: 'Contractor',
     ACCOUNTANT: 'Accountant',
-    TREASURY: 'Treasury',
-    ADMIN: 'System Admin',
   };
   return map[role] || role;
 };

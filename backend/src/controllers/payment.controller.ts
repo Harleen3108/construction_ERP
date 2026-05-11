@@ -17,6 +17,7 @@ export const releasePayment = asyncHandler(async (req: AuthRequest, res: Respons
 
   const pay = await Payment.create({
     paymentId: generatePaymentId(),
+    department: bill.department,
     bill: bill._id,
     project: bill.project,
     contractor: bill.contractor,
@@ -41,6 +42,9 @@ export const releasePayment = asyncHandler(async (req: AuthRequest, res: Respons
 
 export const listPayments = asyncHandler(async (req: AuthRequest, res: Response) => {
   const q: any = {};
+  if (req.user!.role !== 'SUPER_ADMIN' && req.user!.role !== 'CONTRACTOR') {
+    q.department = req.user!.department;
+  }
   if (req.user!.role === 'CONTRACTOR') q.contractor = req.user!._id;
   const items = await Payment.find(q)
     .populate('bill', 'billNumber netPayable')

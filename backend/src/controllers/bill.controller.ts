@@ -2,6 +2,7 @@ import { Response } from 'express';
 import asyncHandler from '../utils/asyncHandler';
 import Bill from '../models/Bill';
 import MeasurementBook from '../models/MeasurementBook';
+import Project from '../models/Project';
 import Approval from '../models/Approval';
 import { AuthRequest } from '../middleware/auth';
 import { generateBillId } from '../utils/generateId';
@@ -29,10 +30,14 @@ export const createBill = asyncHandler(async (req: AuthRequest, res: Response) =
   const currentBillAmount = grossAmount - previousBillsTotal;
   const billNumber = `RA Bill ${previousBills.length + 1}`;
 
+  const projDoc = await Project.findById(project);
+  const department = projDoc?.department;
+
   const bill = await Bill.create({
     billId: generateBillId(),
     billNumber,
     billType,
+    department,
     project,
     workOrder,
     contractor: req.user!._id,
@@ -46,7 +51,7 @@ export const createBill = asyncHandler(async (req: AuthRequest, res: Response) =
     retentionPercent: retentionPercent ?? Number(process.env.RETENTION_PERCENT || 0),
     otherDeductions,
     remarks,
-    netPayable: 0, // pre-save hook recalculates
+    netPayable: 0,
     status: 'SUBMITTED',
     submittedAt: new Date(),
   });
@@ -55,6 +60,7 @@ export const createBill = asyncHandler(async (req: AuthRequest, res: Response) =
   const stages: ('JE' | 'SDO' | 'EE' | 'ACCOUNTANT')[] = ['JE', 'SDO', 'EE', 'ACCOUNTANT'];
   const approvals = await Approval.insertMany(
     stages.map((s, i) => ({
+      department,
       entityType: 'BILL',
       entityId: bill._id,
       stage: s,
@@ -71,6 +77,9 @@ export const createBill = asyncHandler(async (req: AuthRequest, res: Response) =
 export const listBills = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { projectId, status } = req.query;
   const q: any = {};
+  if (req.user!.role !== 'SUPER_ADMIN' && req.user!.role !== 'CONTRACTOR') {
+    q.department = req.user!.department;
+  }
   if (projectId) q.project = projectId;
   if (status) q.status = status;
   if (req.user!.role === 'CONTRACTOR') q.contractor = req.user!._id;

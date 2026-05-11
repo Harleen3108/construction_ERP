@@ -1,13 +1,14 @@
 import { Router } from 'express';
-import { listUsers, getUser, verifyContractor, toggleUserActive } from '../controllers/user.controller';
+import { listUsers, getUser, verifyContractor, toggleUserActive, createUser, updatePermissions } from '../controllers/user.controller';
 import { protect, authorize } from '../middleware/auth';
 
 const router = Router();
 router.use(protect);
-router.get('/', authorize('ADMIN', 'CE', 'EE', 'TENDER_OFFICER'), listUsers);
-router.get('/:id', listUsers);
-router.put('/:id/verify', authorize('ADMIN'), verifyContractor);
-router.put('/:id/toggle', authorize('ADMIN'), toggleUserActive);
-router.get('/:id/details', getUser);
+router.get('/', authorize('DEPT_ADMIN', 'CE', 'EE'), listUsers);
+router.post('/', authorize('DEPT_ADMIN'), createUser);
+router.get('/:id', getUser);
+router.put('/:id/verify', authorize('DEPT_ADMIN'), verifyContractor);
+router.put('/:id/toggle', authorize('DEPT_ADMIN'), toggleUserActive);
+router.put('/:id/permissions', authorize('DEPT_ADMIN'), updatePermissions);
 
 export default router;

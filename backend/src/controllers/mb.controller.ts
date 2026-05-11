@@ -13,6 +13,7 @@ export const createMB = asyncHandler(async (req: AuthRequest, res: Response) => 
   const mb = await MeasurementBook.create({
     mbId: generateMBId(),
     ...rest,
+    department: req.user!.department,
     entries,
     totalAmount,
     recordedBy: req.user!._id,
@@ -23,6 +24,7 @@ export const createMB = asyncHandler(async (req: AuthRequest, res: Response) => 
   const stages: ('SDO' | 'EE')[] = ['SDO', 'EE'];
   const approvals = await Approval.insertMany(
     stages.map((s, i) => ({
+      department: req.user!.department,
       entityType: 'MB',
       entityId: mb._id,
       stage: s,
@@ -39,6 +41,9 @@ export const createMB = asyncHandler(async (req: AuthRequest, res: Response) => 
 export const listMBs = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { projectId, status } = req.query;
   const q: any = {};
+  if (req.user!.role !== 'SUPER_ADMIN' && req.user!.role !== 'CONTRACTOR') {
+    q.department = req.user!.department;
+  }
   if (projectId) q.project = projectId;
   if (status) q.status = status;
 

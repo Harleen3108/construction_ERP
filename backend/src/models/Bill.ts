@@ -16,8 +16,9 @@ export type BillType = 'RA_BILL' | 'FINAL_BILL';
 export interface IBill extends Document {
   _id: mongoose.Types.ObjectId;
   billId: string;
-  billNumber: string; // RA Bill 1, RA Bill 2, Final Bill
+  billNumber: string;
   billType: BillType;
+  department: mongoose.Types.ObjectId;
   project: mongoose.Types.ObjectId;
   workOrder: mongoose.Types.ObjectId;
   contractor: mongoose.Types.ObjectId;
@@ -53,6 +54,7 @@ const billSchema = new Schema<IBill>(
     billId: { type: String, unique: true, required: true, index: true },
     billNumber: { type: String, required: true },
     billType: { type: String, enum: ['RA_BILL', 'FINAL_BILL'], default: 'RA_BILL' },
+    department: { type: Schema.Types.ObjectId, ref: 'Department', required: true, index: true },
     project: { type: Schema.Types.ObjectId, ref: 'Project', required: true, index: true },
     workOrder: { type: Schema.Types.ObjectId, ref: 'WorkOrder', required: true },
     contractor: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },

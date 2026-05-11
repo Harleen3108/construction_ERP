@@ -4,7 +4,7 @@ import { protect, authorize } from '../middleware/auth';
 
 const router = Router();
 router.use(protect);
-router.get('/', authorize('CE', 'EE', 'ADMIN', 'ACCOUNTANT'), listAuditLogs);
-router.get('/summary', authorize('CE', 'EE', 'ADMIN'), auditSummary);
+router.get('/', authorize('CE', 'EE', 'DEPT_ADMIN', 'ACCOUNTANT'), listAuditLogs);
+router.get('/summary', authorize('CE', 'EE', 'DEPT_ADMIN'), auditSummary);
 
 export default router;

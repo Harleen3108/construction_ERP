@@ -19,6 +19,7 @@ export const auditLogger = async (
       res.statusCode < 400
     ) {
       AuditLog.create({
+        department: req.user.department,
         user: req.user._id,
         userName: req.user.name,
         userRole: req.user.role,

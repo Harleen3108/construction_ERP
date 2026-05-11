@@ -18,6 +18,7 @@ export const submitTechnicalBid = asyncHandler(async (req: AuthRequest, res: Res
   let bid = await Bid.findOne({ tender: tenderId, contractor: req.user!._id });
   if (!bid) {
     bid = await Bid.create({
+      department: tender.department,
       tender: tenderId,
       contractor: req.user!._id,
       contractorName: req.user!.companyName || req.user!.name,

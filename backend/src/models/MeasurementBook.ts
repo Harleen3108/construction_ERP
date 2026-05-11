@@ -18,6 +18,7 @@ export interface IMBEntry {
 
 export interface IMeasurementBook extends Document {
   mbId: string;
+  department: mongoose.Types.ObjectId;
   project: mongoose.Types.ObjectId;
   workOrder: mongoose.Types.ObjectId;
   contractor: mongoose.Types.ObjectId;
@@ -56,6 +57,7 @@ const mbEntrySchema = new Schema<IMBEntry>(
 const mbSchema = new Schema<IMeasurementBook>(
   {
     mbId: { type: String, unique: true, required: true, index: true },
+    department: { type: Schema.Types.ObjectId, ref: 'Department', required: true, index: true },
     project: { type: Schema.Types.ObjectId, ref: 'Project', required: true, index: true },
     workOrder: { type: Schema.Types.ObjectId, ref: 'WorkOrder', required: true },
     contractor: { type: Schema.Types.ObjectId, ref: 'User', required: true },

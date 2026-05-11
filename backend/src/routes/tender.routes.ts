@@ -9,12 +9,12 @@ const router = Router();
 router.use(protect);
 
 router.route('/')
-  .post(authorize('TENDER_OFFICER', 'EE', 'ADMIN'), createTender)
+  .post(authorize('EE', 'CE', 'DEPT_ADMIN'), createTender)
   .get(listTenders);
 router.route('/:id')
   .get(getTender)
-  .put(authorize('TENDER_OFFICER', 'EE', 'ADMIN'), updateTender);
-router.put('/:id/open-bidding', authorize('TENDER_OFFICER', 'EE', 'ADMIN'), openBidding);
-router.put('/:id/close-bidding', authorize('TENDER_OFFICER', 'EE', 'ADMIN'), closeBidding);
+  .put(authorize('EE', 'CE', 'DEPT_ADMIN'), updateTender);
+router.put('/:id/open-bidding', authorize('EE', 'CE', 'DEPT_ADMIN'), openBidding);
+router.put('/:id/close-bidding', authorize('EE', 'CE', 'DEPT_ADMIN'), closeBidding);
 
 export default router;

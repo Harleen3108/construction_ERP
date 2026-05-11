@@ -5,10 +5,10 @@ import { protect, authorize } from '../middleware/auth';
 const router = Router();
 router.use(protect);
 router.route('/')
-  .post(authorize('JE', 'ADMIN'), createMB)
+  .post(authorize('JE', 'DEPT_ADMIN'), createMB)
   .get(listMBs);
 router.route('/:id')
   .get(getMB)
-  .put(authorize('JE', 'ADMIN'), updateMB);
+  .put(authorize('JE', 'DEPT_ADMIN'), updateMB);
 
 export default router;

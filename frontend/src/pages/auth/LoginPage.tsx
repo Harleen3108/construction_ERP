@@ -30,15 +30,14 @@ export default function LoginPage() {
 
   const fillDemo = (role: string) => {
     const map: Record<string, [string, string]> = {
-      JE: ['je@erp.gov.in', 'pass@123'],
-      SDO: ['sdo@erp.gov.in', 'pass@123'],
-      EE: ['ee@erp.gov.in', 'pass@123'],
+      SUPER_ADMIN: ['superadmin@erp.gov.in', 'super@123'],
+      DEPT_ADMIN: ['deptadmin@erp.gov.in', 'dept@123'],
       CE: ['ce@erp.gov.in', 'pass@123'],
-      TENDER_OFFICER: ['tender@erp.gov.in', 'pass@123'],
-      CONTRACTOR: ['contractor@abc.com', 'pass@123'],
+      EE: ['ee@erp.gov.in', 'pass@123'],
+      SDO: ['sdo@erp.gov.in', 'pass@123'],
+      JE: ['je@erp.gov.in', 'pass@123'],
       ACCOUNTANT: ['accounts@erp.gov.in', 'pass@123'],
-      TREASURY: ['treasury@erp.gov.in', 'pass@123'],
-      ADMIN: ['admin@erp.gov.in', 'admin@123'],
+      CONTRACTOR: ['contractor@abc.com', 'pass@123'],
     };
     const [e, p] = map[role] || ['', ''];
     setEmail(e); setPassword(p);
@@ -144,22 +143,33 @@ export default function LoginPage() {
             <div className="mt-6 pt-6 border-t border-slate-200">
               <div className="text-xs text-slate-500 mb-2">Quick demo login (run <code>npm run seed</code> in backend):</div>
               <div className="flex flex-wrap gap-1.5">
-                {['JE','SDO','EE','CE','TENDER_OFFICER','CONTRACTOR','ACCOUNTANT','TREASURY','ADMIN'].map((r) => (
+                {['SUPER_ADMIN','DEPT_ADMIN','CE','EE','SDO','JE','ACCOUNTANT','CONTRACTOR'].map((r) => (
                   <button
                     key={r}
                     onClick={() => fillDemo(r)}
                     type="button"
                     className="text-[10px] px-2 py-1 border border-slate-300 rounded hover:bg-govt-navy hover:text-white hover:border-govt-navy transition"
                   >
-                    {r}
+                    {r.replace('_', ' ')}
                   </button>
                 ))}
               </div>
             </div>
 
-            <p className="text-center text-xs text-slate-500 mt-6">
-              New contractor? <Link to="/register" className="text-govt-navy font-semibold hover:underline">Register here</Link>
-            </p>
+            <div className="mt-6 pt-5 border-t border-slate-200 space-y-2 text-center text-xs">
+              <div>
+                <Link to="/forgot-password" className="text-govt-navy hover:underline">Forgot password?</Link>
+              </div>
+              <div className="text-slate-500">
+                Government department or company? <br />
+                <Link to="/register-organization" className="text-govt-navy font-semibold hover:underline">
+                  Register your organization →
+                </Link>
+              </div>
+              <div className="text-slate-400">
+                <Link to="/register" className="hover:underline">Contractor registration</Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>

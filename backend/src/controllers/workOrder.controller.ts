@@ -22,6 +22,7 @@ export const awardTender = asyncHandler(async (req: AuthRequest, res: Response) 
   const wo = await WorkOrder.create({
     workOrderId: generateWorkOrderId(),
     loaId: generateLOAId(),
+    department: tender.department,
     project: tender.project,
     tender: tender._id,
     contractor: l1.contractor,
@@ -61,6 +62,9 @@ export const awardTender = asyncHandler(async (req: AuthRequest, res: Response) 
 
 export const listWorkOrders = asyncHandler(async (req: AuthRequest, res: Response) => {
   const q: any = {};
+  if (req.user!.role !== 'SUPER_ADMIN' && req.user!.role !== 'CONTRACTOR') {
+    q.department = req.user!.department;
+  }
   if (req.user!.role === 'CONTRACTOR') q.contractor = req.user!._id;
   const wos = await WorkOrder.find(q)
     .populate('project', 'name location')

@@ -1,10 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export type ApprovalStage = 'JE' | 'SDO' | 'EE' | 'CE' | 'ACCOUNTANT' | 'TREASURY';
+export type ApprovalStage = 'JE' | 'SDO' | 'EE' | 'CE' | 'ACCOUNTANT' | 'DEPT_ADMIN';
 export type ApprovalStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'RETURNED';
 export type ApprovalEntity = 'PROJECT' | 'TENDER' | 'BID' | 'MB' | 'BILL' | 'PAYMENT';
 
 export interface IApproval extends Document {
+  department?: mongoose.Types.ObjectId;
   entityType: ApprovalEntity;
   entityId: mongoose.Types.ObjectId;
   stage: ApprovalStage;
@@ -22,6 +23,7 @@ export interface IApproval extends Document {
 
 const approvalSchema = new Schema<IApproval>(
   {
+    department: { type: Schema.Types.ObjectId, ref: 'Department', index: true },
     entityType: {
       type: String,
       enum: ['PROJECT', 'TENDER', 'BID', 'MB', 'BILL', 'PAYMENT'],
@@ -31,7 +33,7 @@ const approvalSchema = new Schema<IApproval>(
     entityId: { type: Schema.Types.ObjectId, required: true, index: true },
     stage: {
       type: String,
-      enum: ['JE', 'SDO', 'EE', 'CE', 'ACCOUNTANT', 'TREASURY'],
+      enum: ['JE', 'SDO', 'EE', 'CE', 'ACCOUNTANT', 'DEPT_ADMIN'],
       required: true,
     },
     order: { type: Number, required: true },

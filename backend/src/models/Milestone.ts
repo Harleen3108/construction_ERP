@@ -3,8 +3,9 @@ import mongoose, { Schema, Document } from 'mongoose';
 export type MilestoneStatus = 'NOT_STARTED' | 'IN_PROGRESS' | 'ON_TRACK' | 'DELAYED' | 'COMPLETED';
 
 export interface IMilestone extends Document {
+  department?: mongoose.Types.ObjectId;
   project: mongoose.Types.ObjectId;
-  name: string; // Foundation, Structure, Roofing
+  name: string;
   description?: string;
   plannedStartDate: Date;
   plannedEndDate: Date;
@@ -22,6 +23,7 @@ export interface IMilestone extends Document {
 
 const milestoneSchema = new Schema<IMilestone>(
   {
+    department: { type: Schema.Types.ObjectId, ref: 'Department', index: true },
     project: { type: Schema.Types.ObjectId, ref: 'Project', required: true, index: true },
     name: { type: String, required: true },
     description: String,

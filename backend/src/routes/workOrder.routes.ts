@@ -7,7 +7,7 @@ import { protect, authorize } from '../middleware/auth';
 const router = Router();
 router.use(protect);
 
-router.post('/award/:tenderId', authorize('TENDER_OFFICER', 'EE', 'CE', 'ADMIN'), awardTender);
+router.post('/award/:tenderId', authorize('EE', 'CE', 'DEPT_ADMIN'), awardTender);
 router.get('/', listWorkOrders);
 router.get('/:id', getWorkOrder);
 router.put('/:id/accept', authorize('CONTRACTOR'), acceptWorkOrder);

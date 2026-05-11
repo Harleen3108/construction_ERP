@@ -4,7 +4,7 @@ import { protect, authorize } from '../middleware/auth';
 
 const router = Router();
 router.use(protect);
-router.post('/release', authorize('TREASURY', 'ACCOUNTANT', 'ADMIN'), releasePayment);
+router.post('/release', authorize('ACCOUNTANT', 'DEPT_ADMIN'), releasePayment);
 router.get('/', listPayments);
 router.get('/:id', getPayment);
 

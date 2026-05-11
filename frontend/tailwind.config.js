@@ -25,8 +25,9 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        gov: ['"Noto Sans"', 'Inter', 'sans-serif'],
+        // Single family across the app — keeps every page identical to the dashboard
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+        gov:  ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
       },
       boxShadow: {
         gov: '0 1px 3px rgba(11, 61, 145, 0.12), 0 1px 2px rgba(11, 61, 145, 0.08)',

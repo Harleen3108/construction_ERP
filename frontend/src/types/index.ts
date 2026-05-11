@@ -1,7 +1,42 @@
 export type UserRole =
-  | 'JE' | 'SDO' | 'EE' | 'CE'
-  | 'TENDER_OFFICER' | 'CONTRACTOR'
-  | 'ACCOUNTANT' | 'TREASURY' | 'ADMIN';
+  | 'SUPER_ADMIN' | 'DEPT_ADMIN'
+  | 'CE' | 'EE' | 'SDO' | 'JE'
+  | 'CONTRACTOR' | 'ACCOUNTANT';
+
+export interface Department {
+  _id: string;
+  name: string;
+  code: string;
+  type: string;
+  state?: string;
+  city?: string;
+  status: 'ACTIVE' | 'SUSPENDED' | 'TRIAL' | 'EXPIRED';
+  enabledModules: string[];
+  contactEmail?: string;
+  contactPhone?: string;
+  headOfDepartment?: string;
+  userCount?: number;
+  projectCount?: number;
+  subscription?: any;
+  createdAt: string;
+}
+
+export interface Permissions {
+  canCreateProject?: boolean;
+  canApproveProject?: boolean;
+  canCreateTender?: boolean;
+  canApproveTender?: boolean;
+  canEvaluateBids?: boolean;
+  canIssueWorkOrder?: boolean;
+  canRecordMB?: boolean;
+  canApproveMB?: boolean;
+  canRaiseBill?: boolean;
+  canApproveBill?: boolean;
+  canReleasePayment?: boolean;
+  canManageUsers?: boolean;
+  canViewAuditLogs?: boolean;
+  canManageBudget?: boolean;
+}
 
 export interface User {
   _id: string;
@@ -10,13 +45,15 @@ export interface User {
   role: UserRole;
   phone?: string;
   designation?: string;
-  department?: string;
+  department?: any;
   employeeId?: string;
   companyName?: string;
   gstNumber?: string;
   panNumber?: string;
   registrationNumber?: string;
   experienceYears?: number;
+  contractorVerified?: boolean;
+  permissions?: Permissions;
   active: boolean;
   avatar?: string;
   token?: string;

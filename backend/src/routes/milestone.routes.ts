@@ -4,9 +4,9 @@ import { protect, authorize } from '../middleware/auth';
 
 const router = Router();
 router.use(protect);
-router.post('/', authorize('JE', 'EE', 'CE', 'ADMIN'), createMilestone);
+router.post('/', authorize('JE', 'EE', 'CE', 'DEPT_ADMIN'), createMilestone);
 router.get('/project/:projectId', listMilestones);
-router.put('/:id', authorize('JE', 'EE', 'CE', 'CONTRACTOR', 'ADMIN'), updateMilestone);
-router.delete('/:id', authorize('EE', 'CE', 'ADMIN'), deleteMilestone);
+router.put('/:id', authorize('JE', 'EE', 'CE', 'CONTRACTOR', 'DEPT_ADMIN'), updateMilestone);
+router.delete('/:id', authorize('EE', 'CE', 'DEPT_ADMIN'), deleteMilestone);
 
 export default router;

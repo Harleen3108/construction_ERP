@@ -22,6 +22,7 @@ export interface IBOQItem {
 export interface ITender extends Document {
   _id: mongoose.Types.ObjectId;
   tenderId: string;
+  department: mongoose.Types.ObjectId;
   project: mongoose.Types.ObjectId;
   title: string;
   description?: string;
@@ -63,6 +64,7 @@ const boqSchema = new Schema<IBOQItem>(
 const tenderSchema = new Schema<ITender>(
   {
     tenderId: { type: String, unique: true, required: true, index: true },
+    department: { type: Schema.Types.ObjectId, ref: 'Department', required: true, index: true },
     project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
     title: { type: String, required: true },
     description: String,

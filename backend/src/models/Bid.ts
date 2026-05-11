@@ -13,6 +13,7 @@ export type BidStatus =
 
 export interface IBid extends Document {
   _id: mongoose.Types.ObjectId;
+  department: mongoose.Types.ObjectId;
   tender: mongoose.Types.ObjectId;
   contractor: mongoose.Types.ObjectId;
   contractorName?: string;
@@ -37,6 +38,7 @@ export interface IBid extends Document {
 
 const bidSchema = new Schema<IBid>(
   {
+    department: { type: Schema.Types.ObjectId, ref: 'Department', required: true, index: true },
     tender: { type: Schema.Types.ObjectId, ref: 'Tender', required: true, index: true },
     contractor: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     contractorName: String,

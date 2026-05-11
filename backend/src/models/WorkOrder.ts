@@ -2,7 +2,8 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IWorkOrder extends Document {
   workOrderId: string;
-  loaId: string; // Letter of Award
+  loaId: string;
+  department: mongoose.Types.ObjectId;
   project: mongoose.Types.ObjectId;
   tender: mongoose.Types.ObjectId;
   contractor: mongoose.Types.ObjectId;
@@ -27,6 +28,7 @@ const workOrderSchema = new Schema<IWorkOrder>(
   {
     workOrderId: { type: String, unique: true, required: true, index: true },
     loaId: { type: String, required: true },
+    department: { type: Schema.Types.ObjectId, ref: 'Department', required: true, index: true },
     project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
     tender: { type: Schema.Types.ObjectId, ref: 'Tender', required: true },
     contractor: { type: Schema.Types.ObjectId, ref: 'User', required: true },

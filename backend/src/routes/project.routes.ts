@@ -9,15 +9,15 @@ const router = Router();
 router.use(protect);
 
 router.route('/')
-  .post(authorize('JE', 'ADMIN'), createProject)
+  .post(authorize('JE', 'DEPT_ADMIN'), createProject)
   .get(listProjects);
 
 router.route('/:id')
   .get(getProject)
-  .put(authorize('JE', 'EE', 'CE', 'ADMIN'), updateProject)
-  .delete(authorize('JE', 'ADMIN'), deleteProject);
+  .put(authorize('JE', 'EE', 'CE', 'DEPT_ADMIN'), updateProject)
+  .delete(authorize('JE', 'DEPT_ADMIN'), deleteProject);
 
-router.put('/:id/progress', authorize('JE', 'EE', 'ADMIN'), updateProgress);
-router.put('/:id/complete', authorize('EE', 'CE', 'ADMIN'), completeProject);
+router.put('/:id/progress', authorize('JE', 'EE', 'DEPT_ADMIN'), updateProgress);
+router.put('/:id/complete', authorize('EE', 'CE', 'DEPT_ADMIN'), completeProject);
 
 export default router;

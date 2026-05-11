@@ -5,6 +5,7 @@ export type PaymentStatus = 'INITIATED' | 'PROCESSING' | 'RELEASED' | 'FAILED';
 
 export interface IPayment extends Document {
   paymentId: string;
+  department: mongoose.Types.ObjectId;
   bill: mongoose.Types.ObjectId;
   project: mongoose.Types.ObjectId;
   contractor: mongoose.Types.ObjectId;
@@ -26,6 +27,7 @@ export interface IPayment extends Document {
 const paymentSchema = new Schema<IPayment>(
   {
     paymentId: { type: String, unique: true, required: true, index: true },
+    department: { type: Schema.Types.ObjectId, ref: 'Department', required: true, index: true },
     bill: { type: Schema.Types.ObjectId, ref: 'Bill', required: true, index: true },
     project: { type: Schema.Types.ObjectId, ref: 'Project', required: true },
     contractor: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },

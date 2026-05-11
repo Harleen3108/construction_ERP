@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IAuditLog extends Document {
+  department?: mongoose.Types.ObjectId;
   user?: mongoose.Types.ObjectId;
   userName?: string;
   userRole?: string;
@@ -16,6 +17,7 @@ export interface IAuditLog extends Document {
 
 const auditSchema = new Schema<IAuditLog>(
   {
+    department: { type: Schema.Types.ObjectId, ref: 'Department', index: true },
     user: { type: Schema.Types.ObjectId, ref: 'User' },
     userName: String,
     userRole: String,

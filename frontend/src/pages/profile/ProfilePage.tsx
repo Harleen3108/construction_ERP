@@ -37,7 +37,7 @@ export default function ProfilePage() {
           </div>
           <div>
             <div className="text-lg font-bold">{user.name}</div>
-            <div className="text-sm text-slate-500">{roleLabel(user.role)} · {user.department || 'PWD'}</div>
+            <div className="text-sm text-slate-500">{roleLabel(user.role)} · {user.department?.name || user.department?.code || 'Platform'}</div>
           </div>
         </div>
         <div><label className="label-gov">Name</label>

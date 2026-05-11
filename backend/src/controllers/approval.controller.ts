@@ -8,12 +8,13 @@ import Bill from '../models/Bill';
 import { AuthRequest } from '../middleware/auth';
 
 const ROLE_TO_STAGE: Record<string, string[]> = {
+  JE: ['JE'],
   SDO: ['SDO'],
   EE: ['EE'],
   CE: ['CE'],
   ACCOUNTANT: ['ACCOUNTANT'],
-  TREASURY: ['TREASURY'],
-  ADMIN: ['SDO', 'EE', 'CE', 'ACCOUNTANT', 'TREASURY'],
+  DEPT_ADMIN: ['SDO', 'EE', 'CE', 'ACCOUNTANT', 'DEPT_ADMIN'],
+  SUPER_ADMIN: ['JE', 'SDO', 'EE', 'CE', 'ACCOUNTANT', 'DEPT_ADMIN'],
 };
 
 // List pending approvals for the logged-in user's role
@@ -21,7 +22,11 @@ export const myPendingApprovals = asyncHandler(async (req: AuthRequest, res: Res
   const stages = ROLE_TO_STAGE[req.user!.role] || [];
   if (!stages.length) return res.json({ success: true, data: [] });
 
-  const all = await Approval.find({ stage: { $in: stages }, status: 'PENDING' })
+  const baseQ: any = { stage: { $in: stages }, status: 'PENDING' };
+  if (req.user!.role !== 'SUPER_ADMIN' && req.user!.department) {
+    baseQ.department = req.user!.department;
+  }
+  const all = await Approval.find(baseQ)
     .sort({ createdAt: -1 })
     .lean();
 
@@ -60,7 +65,7 @@ export const actOnApproval = asyncHandler(async (req: AuthRequest, res: Response
 
   // Permission: only role that matches stage can act
   const stages = ROLE_TO_STAGE[req.user!.role] || [];
-  if (!stages.includes(approval.stage) && req.user!.role !== 'ADMIN') {
+  if (!stages.includes(approval.stage) && req.user!.role !== 'SUPER_ADMIN' && req.user!.role !== 'DEPT_ADMIN') {
     res.status(403);
     throw new Error('Not permitted to act on this approval');
   }

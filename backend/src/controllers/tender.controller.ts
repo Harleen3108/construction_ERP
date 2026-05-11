@@ -19,6 +19,7 @@ export const createTender = asyncHandler(async (req: AuthRequest, res: Response)
   const tender = await Tender.create({
     tenderId: generateTenderId(),
     ...req.body,
+    department: project.department,
     title: req.body.title || `Tender for ${project.name}`,
     createdBy: req.user!._id,
     status: 'DRAFT',
@@ -28,6 +29,7 @@ export const createTender = asyncHandler(async (req: AuthRequest, res: Response)
   const stages: ('EE' | 'CE')[] = ['EE', 'CE'];
   const approvals = await Approval.insertMany(
     stages.map((stage, i) => ({
+      department: project.department,
       entityType: 'TENDER',
       entityId: tender._id,
       stage,
@@ -49,10 +51,13 @@ export const createTender = asyncHandler(async (req: AuthRequest, res: Response)
 export const listTenders = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { status, search } = req.query;
   const q: any = {};
+  if (req.user!.role !== 'SUPER_ADMIN' && req.user!.role !== 'CONTRACTOR') {
+    q.department = req.user!.department;
+  }
   if (status) q.status = status;
   if (search) q.title = new RegExp(search as string, 'i');
 
-  // Contractors only see PUBLISHED / BIDDING_OPEN / BIDDING_CLOSED tenders
+  // Contractors only see PUBLISHED / BIDDING_OPEN tenders (cross-department visible for bidding)
   if (req.user!.role === 'CONTRACTOR') {
     q.status = { $in: ['PUBLISHED', 'BIDDING_OPEN', 'BIDDING_CLOSED', 'EVALUATION', 'AWARDED'] };
   }

@@ -26,6 +26,25 @@ import paymentRoutes from './routes/payment.routes';
 import auditRoutes from './routes/audit.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import uploadRoutes from './routes/upload.routes';
+import departmentRoutes from './routes/department.routes';
+import subscriptionRoutes from './routes/subscription.routes';
+import dailyProgressRoutes from './routes/dailyProgress.routes';
+import notificationRoutes from './routes/notification.routes';
+import registrationRoutes from './routes/registration.routes';
+import invoiceRoutes from './routes/invoice.routes';
+import supportRoutes from './routes/support.routes';
+import systemRoutes from './routes/system.routes';
+import divisionRoutes from './routes/division.routes';
+import workflowRoutes from './routes/workflow.routes';
+import deptRoutes from './routes/dept.routes';
+import ceRoutes from './routes/ce.routes';
+import eeRoutes from './routes/ee.routes';
+import sdoRoutes from './routes/sdo.routes';
+import jeRoutes from './routes/je.routes';
+import accRoutes from './routes/acc.routes';
+import contRoutes from './routes/cont.routes';
+import inspectionRoutes from './routes/inspection.routes';
+import materialRequestRoutes from './routes/materialRequest.routes';
 
 const app = express();
 
@@ -81,6 +100,25 @@ app.use('/api/payments', paymentRoutes); // Stage 11
 app.use('/api/audit', auditRoutes); // Stage 12
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/departments', departmentRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/registrations', registrationRoutes); // public + super admin
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/support', supportRoutes);
+app.use('/api/system', systemRoutes);              // platform-wide stats
+app.use('/api/divisions', divisionRoutes);         // dept admin
+app.use('/api/workflows', workflowRoutes);         // dept admin
+app.use('/api/dept', deptRoutes);                  // dept admin stats + activity
+app.use('/api/ce', ceRoutes);                      // chief engineer governance
+app.use('/api/ee', eeRoutes);                      // executive engineer operations
+app.use('/api/sdo', sdoRoutes);                    // SDO verification & supervision
+app.use('/api/je', jeRoutes);                      // JE field execution
+app.use('/api/acc', accRoutes);                    // Accountant finance
+app.use('/api/cont', contRoutes);                  // Contractor workspace
+app.use('/api/inspections', inspectionRoutes);     // site inspections
+app.use('/api/material-requests', materialRequestRoutes);
+app.use('/api/daily-progress', dailyProgressRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error handlers
 app.use(notFound);

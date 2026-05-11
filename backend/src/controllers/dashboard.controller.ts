@@ -82,7 +82,7 @@ export const myDashboard = asyncHandler(async (req: AuthRequest, res: Response) 
     });
   }
 
-  if (role === 'ACCOUNTANT' || role === 'TREASURY') {
+  if (role === 'ACCOUNTANT') {
     const pendingBillsAgg = await Bill.aggregate([
       { $match: { status: { $in: ['SUBMITTED', 'JE_VERIFIED', 'SDO_APPROVED', 'EE_APPROVED'] } } },
       { $group: { _id: null, total: { $sum: '$netPayable' }, count: { $sum: 1 } } },
@@ -118,7 +118,7 @@ export const myDashboard = asyncHandler(async (req: AuthRequest, res: Response) 
     return res.json({ success: true, data: { myProjects, myMBs } });
   }
 
-  if (role === 'ADMIN') {
+  if (role === 'SUPER_ADMIN' || role === 'DEPT_ADMIN') {
     const [
       totalProjects, totalUsers, totalTenders, totalContractors,
       activeProjects, completedProjects, delayedProjects,
