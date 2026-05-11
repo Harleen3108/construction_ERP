@@ -32,7 +32,8 @@ api.interceptors.response.use(
         setTimeout(() => (window.location.href = '/login'), 800);
       }
     } else if (err.response?.status >= 400) {
-      toast.error(msg);
+      // Show longer for messages that need reading (e.g., duplicate field errors with suggestions)
+      toast.error(msg, { duration: msg.length > 60 ? 7000 : 4000 });
     }
     return Promise.reject(err);
   }

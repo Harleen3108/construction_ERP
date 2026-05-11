@@ -198,7 +198,7 @@ export const approveRegistration = asyncHandler(async (req: AuthRequest, res: Re
   // 5. Send approval email with set-password link
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
   const setPasswordLink = `${clientUrl}/set-password/${setToken}`;
-  await sendEmail({
+  const emailResult = await sendEmail({
     to: reg.adminEmail,
     subject: '✓ Your Organization is Approved — Set Password',
     html: approvalEmail(reg.orgName, reg.adminName, dept.code, setPasswordLink, plan),
@@ -206,8 +206,55 @@ export const approveRegistration = asyncHandler(async (req: AuthRequest, res: Re
 
   res.json({
     success: true,
-    message: 'Registration approved. Department, Subscription, and Admin account created. Email sent.',
-    data: { registration: reg, department: dept, subscription: sub, admin: { _id: admin._id, email: admin.email } },
+    message: emailResult.ok
+      ? 'Registration approved · Email sent to the admin'
+      : 'Registration approved · Email failed to send — use the link below to manually activate the admin',
+    data: {
+      registration: reg,
+      department: dept,
+      subscription: sub,
+      admin: { _id: admin._id, email: admin.email },
+      activationLink: setPasswordLink, // ALWAYS returned so Super Admin can manually share if email fails
+      emailSent: emailResult.ok,
+      emailError: emailResult.error,
+    },
+  });
+});
+
+// SUPER_ADMIN — Generate a fresh activation link for an already-approved registration (in case email failed)
+export const resendActivation = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const reg = await OrganizationRegistration.findById(req.params.id).populate('deptAdmin');
+  if (!reg || reg.status !== 'APPROVED' || !reg.deptAdmin) {
+    res.status(400);
+    throw new Error('Registration is not in an approved state');
+  }
+  const admin = await User.findById(reg.deptAdmin).select('+passwordSetToken +passwordSetExpires');
+  if (!admin) { res.status(404); throw new Error('Admin user not found'); }
+  if (!admin.mustSetPassword) {
+    res.status(400);
+    throw new Error('User has already set their password');
+  }
+
+  // Generate a fresh token
+  const setToken = crypto.randomBytes(32).toString('hex');
+  const tokenHash = crypto.createHash('sha256').update(setToken).digest('hex');
+  admin.passwordSetToken = tokenHash;
+  admin.passwordSetExpires = new Date(Date.now() + 48 * 60 * 60 * 1000);
+  await admin.save();
+
+  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+  const setPasswordLink = `${clientUrl}/set-password/${setToken}`;
+
+  const emailResult = await sendEmail({
+    to: admin.email,
+    subject: 'Activate Your Account — Constructor ERP',
+    html: approvalEmail(reg.orgName, reg.adminName, (await Department.findById(reg.department))?.code || '', setPasswordLink, 'PROFESSIONAL'),
+  });
+
+  res.json({
+    success: true,
+    message: emailResult.ok ? 'Activation email resent' : 'Email failed — use the link below to share manually',
+    data: { activationLink: setPasswordLink, emailSent: emailResult.ok, emailError: emailResult.error },
   });
 });
 

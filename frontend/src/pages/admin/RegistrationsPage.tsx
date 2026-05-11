@@ -63,10 +63,41 @@ export default function RegistrationsPage() {
 
   const approve = async () => {
     try {
-      await api.put(`/registrations/${activeReg._id}/approve`, approveForm);
-      toast.success(`${activeReg.orgName} approved · activation email sent`);
+      const r = await api.put(`/registrations/${activeReg._id}/approve`, approveForm);
+      const { activationLink, emailSent } = r.data.data || {};
+      if (emailSent) {
+        toast.success(`${activeReg.orgName} approved · activation email sent`);
+      } else {
+        toast(`${activeReg.orgName} approved — email failed, copy the link below`, { icon: '⚠️', duration: 8000 });
+      }
+      if (activationLink) {
+        // Show the link in a persistent way so admin can copy
+        navigator.clipboard?.writeText(activationLink).catch(() => {});
+        setTimeout(() => {
+          prompt(
+            'Activation link (copied to clipboard) — share with the admin if email did not arrive:',
+            activationLink
+          );
+        }, 500);
+      }
       close();
       load();
+    } catch {/* toast in interceptor */}
+  };
+
+  const resendActivation = async (regId: string, orgName: string) => {
+    try {
+      const r = await api.post(`/registrations/${regId}/resend-activation`);
+      const { activationLink, emailSent } = r.data.data || {};
+      if (emailSent) {
+        toast.success(`Activation email resent for ${orgName}`);
+      } else {
+        toast(`Email failed for ${orgName} — link copied to clipboard`, { icon: '⚠️', duration: 8000 });
+      }
+      if (activationLink) {
+        navigator.clipboard?.writeText(activationLink).catch(() => {});
+        prompt('Activation link (copied to clipboard):', activationLink);
+      }
     } catch {/* toast in interceptor */}
   };
 
@@ -153,6 +184,17 @@ export default function RegistrationsPage() {
                     <button onClick={() => openModal(reg, 'view')} className="text-[11px] text-govt-navy hover:underline">
                       View details
                     </button>
+                  </>
+                ) : reg.status === 'APPROVED' ? (
+                  <>
+                    <button
+                      onClick={() => resendActivation(reg._id, reg.orgName)}
+                      className="btn-gov-outline text-xs"
+                      title="Generate a fresh activation link and resend the email"
+                    >
+                      Resend Activation
+                    </button>
+                    <button onClick={() => openModal(reg, 'view')} className="text-[11px] text-govt-navy hover:underline">View Details</button>
                   </>
                 ) : (
                   <button onClick={() => openModal(reg, 'view')} className="btn-gov-outline text-xs">View Details</button>

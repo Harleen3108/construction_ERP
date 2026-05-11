@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import {
   applyRegistration, listRegistrations, getRegistration,
-  approveRegistration, rejectRegistration,
+  approveRegistration, rejectRegistration, resendActivation,
 } from '../controllers/registration.controller';
 import { protect, authorize } from '../middleware/auth';
 
@@ -17,5 +17,6 @@ router.get('/', listRegistrations);
 router.get('/:id', getRegistration);
 router.put('/:id/approve', approveRegistration);
 router.put('/:id/reject', rejectRegistration);
+router.post('/:id/resend-activation', resendActivation);
 
 export default router;
