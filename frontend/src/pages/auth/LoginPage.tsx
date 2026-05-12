@@ -140,22 +140,6 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="mt-6 pt-6 border-t border-slate-200">
-              <div className="text-xs text-slate-500 mb-2">Quick demo login (run <code>npm run seed</code> in backend):</div>
-              <div className="flex flex-wrap gap-1.5">
-                {['SUPER_ADMIN','DEPT_ADMIN','CE','EE','SDO','JE','ACCOUNTANT','CONTRACTOR'].map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => fillDemo(r)}
-                    type="button"
-                    className="text-[10px] px-2 py-1 border border-slate-300 rounded hover:bg-govt-navy hover:text-white hover:border-govt-navy transition"
-                  >
-                    {r.replace('_', ' ')}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             <div className="mt-6 pt-5 border-t border-slate-200 space-y-2 text-center text-xs">
               <div>
                 <Link to="/forgot-password" className="text-govt-navy hover:underline">Forgot password?</Link>

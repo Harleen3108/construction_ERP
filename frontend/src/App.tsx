@@ -45,6 +45,7 @@ import DepartmentProfilePage from './pages/admin/DepartmentProfilePage';
 import RegistrationsPage from './pages/admin/RegistrationsPage';
 import InvoicesPage from './pages/admin/InvoicesPage';
 import SupportPage from './pages/admin/SupportPage';
+import EmailDiagnosticsPage from './pages/admin/EmailDiagnosticsPage';
 import DivisionsPage from './pages/admin/DivisionsPage';
 import PermissionsMatrixPage from './pages/admin/PermissionsMatrixPage';
 import ContractorsPage from './pages/admin/ContractorsPage';
@@ -117,6 +118,7 @@ function App() {
           <Route path="/admin/subscriptions" element={<SubscriptionsPage />} />
           <Route path="/admin/invoices" element={<InvoicesPage />} />
           <Route path="/admin/support" element={<SupportPage />} />
+          <Route path="/admin/email-diagnostics" element={<EmailDiagnosticsPage />} />
 
           {/* CE — Governance */}
           <Route path="/ce/approvals" element={<HighValueApprovalsPage />} />

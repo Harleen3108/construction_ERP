@@ -6,7 +6,7 @@ import {
   Receipt, Wallet, ShieldCheck, Users, Building2, X,
   Calendar, CreditCard, Settings, Inbox, Headphones,
   Layers, Briefcase, FolderOpen, BarChart3, Bell, KeyRound,
-  AlertTriangle, Package,
+  AlertTriangle, Package, Mail,
 } from 'lucide-react';
 import { UserRole } from '../../types';
 import clsx from 'clsx';
@@ -30,6 +30,7 @@ const NAV: NavItem[] = [
   { to: '/admin/subscriptions', label: 'Subscriptions', icon: CreditCard, roles: ['SUPER_ADMIN'], group: 'SaaS' },
   { to: '/admin/invoices', label: 'Invoices & Billing', icon: Receipt, roles: ['SUPER_ADMIN'], group: 'SaaS' },
   { to: '/admin/support', label: 'Support Tickets', icon: Headphones, roles: ['SUPER_ADMIN','DEPT_ADMIN','CE','EE','SDO','JE','CONTRACTOR','ACCOUNTANT'], group: 'SaaS' },
+  { to: '/admin/email-diagnostics', label: 'Email Diagnostics', icon: Mail, roles: ['SUPER_ADMIN'], group: 'SaaS' },
 
   // EE — Operations
   { to: '/ee/queue', label: 'My Approval Queue', icon: Inbox, roles: ['EE'], group: 'Operations' },
