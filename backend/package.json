@@ -10,7 +10,8 @@
     "postinstall": "npm run build",
     "seed": "ts-node src/utils/seed.ts",
     "reset": "ts-node src/utils/reset.ts",
-    "fresh": "npm run reset && npm run seed"
+    "fresh": "npm run reset && npm run seed",
+    "cleanup": "ts-node src/utils/cleanup-orphans.ts"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -32,31 +32,59 @@ export const applyRegistration = asyncHandler(async (req: Request, res: Response
     throw new Error('Required fields missing');
   }
 
-  // ── Specific duplicate checks (separate messages so user knows what to fix) ──
+  // ── Smart duplicate checks ──
+  // An APPROVED registration is only a real conflict if its linked Department still exists.
+  // Otherwise it's an orphan (admin deleted the dept) — auto-clean it up so the user can re-register.
 
-  // 1) Same admin email already used in a pending/approved registration?
+  const isRegStillLive = async (reg: any): Promise<boolean> => {
+    if (reg.status === 'PENDING') return true;       // still in queue, real conflict
+    if (reg.status !== 'APPROVED') return false;
+    if (!reg.department) return false;
+    const dept = await Department.findById(reg.department);
+    return !!dept;                                    // alive only if dept still exists
+  };
+
+  // Auto-cleanup helper for orphaned approved registrations
+  const cleanupOrphan = async (reg: any) => {
+    console.log(`[Registration] Auto-cleanup orphan registration ${reg._id} (admin's dept was deleted)`);
+    // Remove the orphaned registration, subscription, and admin user
+    if (reg.deptAdmin) await User.deleteOne({ _id: reg.deptAdmin });
+    if (reg.subscription) {
+      const Subscription = (await import('../models/Subscription')).default;
+      await Subscription.deleteOne({ _id: reg.subscription });
+    }
+    await OrganizationRegistration.deleteOne({ _id: reg._id });
+  };
+
+  // 1) Same admin email
   const emailRegDup = await OrganizationRegistration.findOne({
     adminEmail, status: { $in: ['PENDING', 'APPROVED'] },
   });
   if (emailRegDup) {
-    res.status(400);
-    throw new Error(
-      `A registration with email "${adminEmail}" is already ${emailRegDup.status === 'PENDING' ? 'pending review' : 'approved'}. Please use a different admin email.`
-    );
+    if (await isRegStillLive(emailRegDup)) {
+      res.status(400);
+      throw new Error(
+        `A registration with email "${adminEmail}" is already ${emailRegDup.status === 'PENDING' ? 'pending review' : 'approved'}. Please use a different admin email.`
+      );
+    }
+    await cleanupOrphan(emailRegDup);
   }
 
-  // 2) Same department code already used in a pending/approved registration?
+  // 2) Same department code
   const codeRegDup = await OrganizationRegistration.findOne({
     code, status: { $in: ['PENDING', 'APPROVED'] },
   });
   if (codeRegDup) {
-    res.status(400);
-    throw new Error(
-      `Department code "${code}" is already taken by another registration. Please choose a different code (e.g., ${code}-2).`
-    );
+    if (await isRegStillLive(codeRegDup)) {
+      res.status(400);
+      throw new Error(
+        `Department code "${code}" is already taken by another registration. Please choose a different code (e.g., ${code}-2).`
+      );
+    }
+    await cleanupOrphan(codeRegDup);
   }
 
-  // 3) Department already exists with this code (already onboarded)?
+  // 3) Department already onboarded with this code?
   if (await Department.findOne({ code })) {
     res.status(400);
     throw new Error(
@@ -64,12 +92,23 @@ export const applyRegistration = asyncHandler(async (req: Request, res: Response
     );
   }
 
-  // 4) Admin email already exists as a user in the system?
-  if (await User.findOne({ email: adminEmail })) {
-    res.status(400);
-    throw new Error(
-      `An account with email "${adminEmail}" already exists. Please use a different email or log in instead.`
-    );
+  // 4) Admin email exists as a user?
+  const existingUser = await User.findOne({ email: adminEmail });
+  if (existingUser) {
+    // If it's a DEPT_ADMIN whose department was deleted, it's an orphan — clean up
+    if (existingUser.role === 'DEPT_ADMIN' && existingUser.department) {
+      const dept = await Department.findById(existingUser.department);
+      if (!dept) {
+        console.log(`[Registration] Auto-cleanup orphan DEPT_ADMIN ${existingUser.email}`);
+        await User.deleteOne({ _id: existingUser._id });
+      } else {
+        res.status(400);
+        throw new Error(`An account with email "${adminEmail}" already exists. Please use a different email or log in instead.`);
+      }
+    } else {
+      res.status(400);
+      throw new Error(`An account with email "${adminEmail}" already exists. Please use a different email or log in instead.`);
+    }
   }
 
   const reg = await OrganizationRegistration.create({

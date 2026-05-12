@@ -4,6 +4,7 @@ import Department from '../models/Department';
 import Subscription from '../models/Subscription';
 import User from '../models/User';
 import Project from '../models/Project';
+import OrganizationRegistration from '../models/OrganizationRegistration';
 import { AuthRequest } from '../middleware/auth';
 
 // SUPER_ADMIN: list all departments
@@ -70,6 +71,41 @@ export const toggleDepartmentStatus = asyncHandler(async (req: AuthRequest, res:
   d.status = d.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE';
   await d.save();
   res.json({ success: true, data: d });
+});
+
+// SUPER_ADMIN: hard delete a department + all related records (cascade)
+export const deleteDepartment = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const dept = await Department.findById(req.params.id);
+  if (!dept) { res.status(404); throw new Error('Department not found'); }
+
+  const deptId = dept._id;
+
+  // Cascade delete in safe order — child records first
+  const [users, subs, regs, projects] = await Promise.all([
+    User.deleteMany({ department: deptId }),
+    Subscription.deleteMany({ department: deptId }),
+    OrganizationRegistration.deleteMany({ department: deptId }),
+    Project.deleteMany({ department: deptId }),
+  ]);
+
+  await Department.deleteOne({ _id: deptId });
+
+  console.log(`[Department] Deleted "${dept.name}" (${dept.code}) — cascade: ${users.deletedCount} users, ${subs.deletedCount} subs, ${regs.deletedCount} registrations, ${projects.deletedCount} projects`);
+
+  res.json({
+    success: true,
+    message: `Department "${dept.name}" and all related records deleted`,
+    data: {
+      department: dept.name,
+      code: dept.code,
+      deleted: {
+        users: users.deletedCount,
+        subscriptions: subs.deletedCount,
+        registrations: regs.deletedCount,
+        projects: projects.deletedCount,
+      },
+    },
+  });
 });
 
 // Update enabled modules for a department

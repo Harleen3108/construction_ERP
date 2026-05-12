@@ -59,6 +59,26 @@ export default function DepartmentsPage() {
     }));
   };
 
+  const deleteDept = async (d: any) => {
+    const confirmCode = prompt(
+      `⚠️ DELETE "${d.name}"?\n\nThis will permanently delete:\n• The department\n• All ${d.userCount || 0} users (DEPT_ADMIN, CE, EE, SDO, JE, etc.)\n• All subscriptions and invoices\n• All ${d.projectCount || 0} projects\n• The original registration\n\nThis CANNOT be undone.\n\nTo confirm, type the department code: ${d.code}`
+    );
+    if (!confirmCode) return;
+    if (confirmCode.trim().toUpperCase() !== d.code.toUpperCase()) {
+      toast.error('Code did not match. Deletion cancelled.');
+      return;
+    }
+    try {
+      const r = await api.delete(`/departments/${d._id}`);
+      const del = r.data.data?.deleted || {};
+      toast.success(
+        `Deleted "${d.name}" · ${del.users || 0} users, ${del.subscriptions || 0} subs, ${del.registrations || 0} regs, ${del.projects || 0} projects removed`,
+        { duration: 6000 }
+      );
+      load();
+    } catch {/* toast in interceptor */}
+  };
+
   return (
     <div>
       <PageHeader
@@ -149,9 +169,14 @@ export default function DepartmentsPage() {
                   <span className={`pill ${d.status === 'ACTIVE' ? 'pill-approved' : d.status === 'TRIAL' ? 'pill-pending' : 'pill-rejected'}`}>{d.status}</span>
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button onClick={() => toggle(d._id)} className="text-slate-500 hover:text-erp-danger" title="Toggle">
-                    <Power className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center justify-end gap-2">
+                    <button onClick={() => toggle(d._id)} className="text-slate-500 hover:text-amber-600" title="Suspend / Activate">
+                      <Power className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => deleteDept(d)} className="text-slate-500 hover:text-erp-danger" title="Delete department (cascade)">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3" /></svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

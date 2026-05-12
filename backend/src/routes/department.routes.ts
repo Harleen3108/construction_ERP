@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   listDepartments, createDepartment, getDepartment,
   updateDepartment, toggleDepartmentStatus, updateModules, myDepartment,
+  deleteDepartment,
 } from '../controllers/department.controller';
 import { protect, authorize } from '../middleware/auth';
 
@@ -15,7 +16,8 @@ router.route('/')
 
 router.route('/:id')
   .get(authorize('SUPER_ADMIN', 'DEPT_ADMIN'), getDepartment)
-  .put(authorize('SUPER_ADMIN', 'DEPT_ADMIN'), updateDepartment);
+  .put(authorize('SUPER_ADMIN', 'DEPT_ADMIN'), updateDepartment)
+  .delete(authorize('SUPER_ADMIN'), deleteDepartment);
 
 router.put('/:id/toggle', authorize('SUPER_ADMIN'), toggleDepartmentStatus);
 router.put('/:id/modules', authorize('SUPER_ADMIN'), updateModules);
